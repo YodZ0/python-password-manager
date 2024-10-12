@@ -26,7 +26,8 @@ def fetch_data() -> list[dict[str, int | str]]:
 
 
 def copy_to_clipboard(sender, data, user_data):
-    value = user_data.get("password")
+    column = user_data[1]
+    value = user_data[0].get(column)
     pyperclip.copy(value)
 
     # Set row unselected
@@ -47,8 +48,7 @@ def update_table(filter_text=""):
                     value = str(row.get(column))
                     dpg.add_selectable(
                         label=value,
-                        span_columns=True,
-                        user_data=row,
+                        user_data=(row, column),
                         callback=copy_to_clipboard,
                     )
 
