@@ -103,6 +103,9 @@ dpg.create_viewport(
     resizable=False,
 )
 
+dpg.set_viewport_small_icon(settings.icons.small)
+dpg.set_viewport_large_icon(settings.icons.large)
+
 with dpg.font_registry():
     regular = dpg.add_font(
         file=settings.fonts.regular,
