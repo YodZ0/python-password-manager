@@ -33,7 +33,7 @@ def copy_to_clipboard(sender, data, user_data):
     dpg.set_value(sender, False)
 
 
-def update_table():
+def update_table(filter_text=""):
     row_ids = dpg.get_item_children("SelectRows", slot=1)
     if row_ids:
         for row_id in row_ids:
@@ -41,15 +41,20 @@ def update_table():
 
     table_data = fetch_data()
     for row in table_data:
-        with dpg.table_row(parent="SelectRows"):
-            for column in ["id", "source", "login", "password"]:
-                value = row.get(column)
-                dpg.add_selectable(
-                    label=value,
-                    span_columns=True,
-                    user_data=row,
-                    callback=copy_to_clipboard,
-                )
+        if filter_text.lower() in row["source"].lower():
+            with dpg.table_row(parent="SelectRows"):
+                for column in ["id", "source", "login", "password"]:
+                    value = str(row.get(column))
+                    dpg.add_selectable(
+                        label=value,
+                        span_columns=True,
+                        user_data=row,
+                        callback=copy_to_clipboard,
+                    )
+
+
+def filter_callback(sender, data, user_data):
+    update_table(filter_text=data)
 
 
 def _clear_form(inputs: tuple[int]):
@@ -91,6 +96,13 @@ def generate_password(sender, data, user_data):
 
 dpg.create_context()
 
+dpg.create_viewport(
+    title="Password manager",
+    width=settings.window.width,
+    height=settings.window.height,
+    resizable=False,
+)
+
 with dpg.font_registry():
     regular = dpg.add_font(
         file=settings.fonts.regular,
@@ -119,6 +131,13 @@ with dpg.window(
             table_tab_descr = dpg.add_text("Click on a row to copy password...")
             dpg.bind_item_font(table_tab_title, bold)
             dpg.bind_item_font(table_tab_descr, italic)
+            dpg.add_spacer(height=10)
+
+            search_field = dpg.add_input_text(
+                label="Search source",
+                callback=filter_callback,
+                hint="Enter a source name...",
+            )
 
             dpg.add_spacer(height=10)
             with dpg.table(
@@ -127,8 +146,13 @@ with dpg.window(
                 row_background=True,
                 borders_outerH=True,
                 borders_innerV=True,
+                scrollY=True,
             ):
-                dpg.add_table_column(label="ID", width_fixed=True)
+                dpg.add_table_column(
+                    label="ID",
+                    width_fixed=True,
+                    init_width_or_weight=40,
+                )
                 dpg.add_table_column(label="Source")
                 dpg.add_table_column(label="Login")
                 dpg.add_table_column(label="Password")
@@ -225,11 +249,6 @@ with dpg.window(
 ctypes.windll.shcore.SetProcessDpiAwareness(2)  # to fix text blur
 
 dpg.bind_font(regular)
-dpg.create_viewport(
-    title="Password manager",
-    width=settings.window.width,
-    height=settings.window.height,
-)
 
 dpg.set_primary_window(window="main", value=True)
 dpg.setup_dearpygui()
