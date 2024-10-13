@@ -55,7 +55,10 @@ def update_table(filter_text=""):
         if filter_text.lower() in row["source"].lower():
             with dpg.table_row(parent="SelectRows"):
                 for column in ["id", "source", "login", "password", "delete"]:
-                    if column != "delete":
+                    if column == "id":
+                        value = str(row.get(column))
+                        dpg.add_text(value)
+                    elif column != "delete":
                         value = str(row.get(column))
                         dpg.add_selectable(
                             label=value,
@@ -64,7 +67,7 @@ def update_table(filter_text=""):
                         )
                     else:
                         dpg.add_button(
-                            label="<->",
+                            label="( - )",
                             user_data=(row, column),
                             callback=delete_row,
                             small=True,
