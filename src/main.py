@@ -160,7 +160,7 @@ with dpg.window(
         # TABLE WITH DATA
         with dpg.tab(label="Passwords"):
             table_tab_title = dpg.add_text("Table with your passwords")
-            table_tab_descr = dpg.add_text("Click on a row to copy password...")
+            table_tab_descr = dpg.add_text("Click on a cell to copy value...")
             dpg.bind_item_font(table_tab_title, bold)
             dpg.bind_item_font(table_tab_descr, italic)
             dpg.add_spacer(height=10)
@@ -266,9 +266,9 @@ with dpg.window(
                 dpg.add_spacer(height=20)
                 slider_len_title = dpg.add_text("Select password length:")
                 slider_len = dpg.add_slider_int(
-                    default_value=5,
-                    min_value=5,
-                    max_value=16,
+                    default_value=8,
+                    min_value=8,
+                    max_value=20,
                     width=input_width,
                 )
 
