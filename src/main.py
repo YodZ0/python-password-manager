@@ -81,21 +81,32 @@ def _clear_form(inputs: tuple[int]):
 
 
 def submit_form(sender, data, user_data):
-    source_value, login_value, password_value = user_data
+    if dpg.get_value("alert_msg"):
+        dpg.delete_item("alert_msg")
 
-    source = dpg.get_value(source_value)
-    login = dpg.get_value(login_value)
-    password = dpg.get_value(password_value)
+    source_id, login_id, password_id = user_data
 
-    new_data = {
-        "source": source.strip(),
-        "login": login.strip(),
-        "password": password.strip(),
-    }
-    db_handler.insert_row(**new_data)
+    source = dpg.get_value(source_id)
+    login = dpg.get_value(login_id)
+    password = dpg.get_value(password_id)
 
-    _clear_form(user_data)
-    update_table()
+    if not all([source, login, password]):
+        dpg.add_text(
+            "All fields required!",
+            color=(255, 10, 0),
+            parent="create_form",
+            tag="alert_msg",
+        )
+    else:
+        new_data = {
+            "source": source.strip(),
+            "login": login.strip(),
+            "password": password.strip(),
+        }
+        db_handler.insert_row(**new_data)
+
+        _clear_form(user_data)
+        update_table()
 
 
 def generate_password(sender, data, user_data):
