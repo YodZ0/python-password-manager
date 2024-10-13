@@ -47,8 +47,21 @@ class DBHandler:
                     "INSERT INTO Data (source, login, password) VALUES (?, ?, ?)",
                     (source, login, password),
                 )
+                connection.commit()
         except sqlite3.DatabaseError as e:
             print("[DB] - Insert row error: ", e)
+
+    def delete_row(self, row_id: int) -> None:
+        try:
+            with self._get_connection() as connection:
+                cursor = connection.cursor()
+                cursor.execute(
+                    "DELETE FROM Data WHERE id = ?",
+                    (str(row_id),),
+                )
+                connection.commit()
+        except sqlite3.DatabaseError as e:
+            print("[DB] - Delete row error: ", e)
 
     def select_all(self) -> List[Dict[str, Union[int, str]]]:
         try:
