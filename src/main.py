@@ -34,6 +34,16 @@ def copy_to_clipboard(sender, data, user_data):
     dpg.set_value(sender, False)
 
 
+def delete_row(sender, data, user_data):
+    value = user_data[0].get("id")
+
+    db_handler.delete_row(value)
+
+    # Set row unselected
+    dpg.set_value(sender, False)
+    update_table()
+
+
 def update_table(filter_text=""):
     row_ids = dpg.get_item_children("SelectRows", slot=1)
     if row_ids:
@@ -44,13 +54,21 @@ def update_table(filter_text=""):
     for row in table_data:
         if filter_text.lower() in row["source"].lower():
             with dpg.table_row(parent="SelectRows"):
-                for column in ["id", "source", "login", "password"]:
-                    value = str(row.get(column))
-                    dpg.add_selectable(
-                        label=value,
-                        user_data=(row, column),
-                        callback=copy_to_clipboard,
-                    )
+                for column in ["id", "source", "login", "password", "delete"]:
+                    if column != "delete":
+                        value = str(row.get(column))
+                        dpg.add_selectable(
+                            label=value,
+                            user_data=(row, column),
+                            callback=copy_to_clipboard,
+                        )
+                    else:
+                        dpg.add_button(
+                            label="<->",
+                            user_data=(row, column),
+                            callback=delete_row,
+                            small=True,
+                        )
 
 
 def filter_callback(sender, data, user_data):
@@ -154,16 +172,21 @@ with dpg.window(
                 dpg.add_table_column(
                     label="ID",
                     width_fixed=True,
-                    init_width_or_weight=40,
+                    init_width_or_weight=30,
                 )
                 dpg.add_table_column(label="Source")
                 dpg.add_table_column(label="Login")
                 dpg.add_table_column(label="Password")
+                dpg.add_table_column(
+                    label="Del",
+                    width_fixed=True,
+                    init_width_or_weight=40,
+                )
             update_table()
 
         # TAB CREATE NEW
         with dpg.tab(label="Create"):
-            with dpg.group(pos=pos_center):
+            with dpg.group(pos=pos_center, tag="create_form"):
                 form_title = dpg.add_text("Fill creation form:")
                 dpg.bind_item_font(form_title, bold)
 
